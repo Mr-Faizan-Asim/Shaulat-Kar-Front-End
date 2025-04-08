@@ -7,11 +7,14 @@ import ProviderRegisterPage from './Page/ProviderRegisterPage.jsx';
 import FindServicePage from './Page/FindServicePage.jsx';
 import AdminDashboard from './Page/AdminDashboard.jsx';
 import ChatPage from './Page/ChatPage.jsx';
+import Navbar from './Components/Navbar.jsx';
+import Footer from './Components/Footer.jsx';
 
 function App() {
   return (
     <BrowserRouter>
       <div className="font-GoogleSans">
+        <Navbar/>
         <Routes>
           {/* Set the sign in page as the default/homepage */}
           <Route path="/signin" element={<SignInPage />} />
@@ -22,6 +25,7 @@ function App() {
          <Route path="/admin" element={<AdminDashboard/>} /> 
          <Route path="/about" element={<ChatPage />}/> {/* Add this line for the chat page */}
         </Routes>
+        <Footer/>
       </div>
     </BrowserRouter>
   );

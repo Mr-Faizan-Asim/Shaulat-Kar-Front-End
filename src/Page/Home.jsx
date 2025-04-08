@@ -8,8 +8,7 @@ import Footer from "../Components/Footer.jsx";
 function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navigation */}
-      <Navbar />
+     
       
       {/* Main Content */}
       <main className="flex-grow">
@@ -90,8 +89,7 @@ function Home() {
         </section>
       </main>
 
-      {/* Footer */}
-      <Footer />
+      
     </div>
   );
 }
