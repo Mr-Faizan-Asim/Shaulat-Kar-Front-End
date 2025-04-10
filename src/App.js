@@ -9,7 +9,7 @@ import AdminDashboard from './Page/AdminDashboard.jsx';
 import ChatPage from './Page/ChatPage.jsx';
 import Navbar from './Components/Navbar.jsx';
 import Footer from './Components/Footer.jsx';
-
+import UserProfile from './Page/UserProfile.jsx'; // Import the UserProfile component
 function App() {
   return (
     <BrowserRouter>
@@ -23,6 +23,7 @@ function App() {
           <Route path="/provider-register" element={<ProviderRegisterPage />} />
           <Route path="/find-service" element={<FindServicePage />} />
          <Route path="/admin" element={<AdminDashboard/>} /> 
+         <Route path="/user-profile" element={<UserProfile />} /> {/* Add this line for the user profile page */}
          <Route path="/about" element={<ChatPage />}/> {/* Add this line for the chat page */}
         </Routes>
         <Footer/>
