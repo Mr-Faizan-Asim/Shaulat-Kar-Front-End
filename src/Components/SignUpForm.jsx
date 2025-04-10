@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SignUpForm = () => {
-  // Track form data
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -13,19 +14,16 @@ const SignUpForm = () => {
     location: ""
   });
 
-  // Track errors for validation
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Simple validation
   const validate = () => {
     const newErrors = {};
-
     if (!formData.name.trim()) {
       newErrors.name = "Name is required";
     }
@@ -46,7 +44,6 @@ const SignUpForm = () => {
       newErrors.dob = "Date of birth is required";
     }
 
-    // Sample CNIC format check: XXXXX-XXXXXXX-X
     if (!formData.cnic.trim()) {
       newErrors.cnic = "CNIC is required";
     } else if (!/^[0-9]{5}-[0-9]{7}-[0-9]$/.test(formData.cnic)) {
@@ -68,16 +65,39 @@ const SignUpForm = () => {
     return newErrors;
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setServerError("");
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-    } else {
-      setErrors({});
-      // Submit the form data (e.g., to an API)
-      console.log("Form Submitted:", formData);
+      return;
+    }
+    setErrors({});
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setServerError(errorData.message || "Sign up failed");
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Sign up successful:", data);
+      // Optionally save a token or user data from the response
+      // After successful sign-up, navigate to the profile page or sign in page
+      navigate("/signin");
+    } catch (error) {
+      console.error("Error during sign up:", error);
+      setServerError("Server error. Please try again.");
     }
   };
 
@@ -101,6 +121,7 @@ const SignUpForm = () => {
           className={`mb-4 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
             errors.name ? "border-red-500" : ""
           }`}
+          required
         />
         {errors.name && <p className="text-red-500 text-xs mb-2">{errors.name}</p>}
 
@@ -118,6 +139,7 @@ const SignUpForm = () => {
           className={`mb-4 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
             errors.email ? "border-red-500" : ""
           }`}
+          required
         />
         {errors.email && <p className="text-red-500 text-xs mb-2">{errors.email}</p>}
 
@@ -135,6 +157,7 @@ const SignUpForm = () => {
           className={`mb-4 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
             errors.password ? "border-red-500" : ""
           }`}
+          required
         />
         {errors.password && <p className="text-red-500 text-xs mb-2">{errors.password}</p>}
 
@@ -151,6 +174,7 @@ const SignUpForm = () => {
           className={`mb-4 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
             errors.dob ? "border-red-500" : ""
           }`}
+          required
         />
         {errors.dob && <p className="text-red-500 text-xs mb-2">{errors.dob}</p>}
 
@@ -168,6 +192,7 @@ const SignUpForm = () => {
           className={`mb-4 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
             errors.cnic ? "border-red-500" : ""
           }`}
+          required
         />
         {errors.cnic && <p className="text-red-500 text-xs mb-2">{errors.cnic}</p>}
 
@@ -185,6 +210,7 @@ const SignUpForm = () => {
           className={`mb-4 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
             errors.phone ? "border-red-500" : ""
           }`}
+          required
         />
         {errors.phone && <p className="text-red-500 text-xs mb-2">{errors.phone}</p>}
 
@@ -200,6 +226,7 @@ const SignUpForm = () => {
           className={`mb-4 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
             errors.gender ? "border-red-500" : ""
           }`}
+          required
         >
           <option value="">Select Gender</option>
           <option value="male">Male</option>
@@ -222,10 +249,14 @@ const SignUpForm = () => {
           className={`mb-6 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
             errors.location ? "border-red-500" : ""
           }`}
+          required
         />
         {errors.location && <p className="text-red-500 text-xs mb-2">{errors.location}</p>}
 
-        {/* Sign Up Button */}
+        {serverError && (
+          <p className="text-red-500 text-sm mb-4">{serverError}</p>
+        )}
+
         <button
           type="submit"
           className="w-full py-2 mb-4 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"

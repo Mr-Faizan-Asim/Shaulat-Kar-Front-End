@@ -1,35 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const UserProfile = () => {
+  const userId = "67f824a333a05bde74718aa2"; // You can replace this with a dynamic value (e.g., retrieved from a token)
   const [editMode, setEditMode] = useState(false);
+  const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState(null);
+  const [error, setError] = useState("");
 
-  const [user, setUser] = useState({
-    userId: "UET2025_009",
-    name: "Ali Raza",
-    email: "ali@example.com",
-    password: "********",
-    dob: "2002-08-15",
-    cnic: "35201-1234567-8",
-    phone: "0312-3456789",
-    gender: "Male",
-    location: "Lahore",
-  });
+  // Fetch user profile from backend
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/users/${userId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+        const data = await response.json();
+        setUser(data);
+        setFormData(data);
+      } catch (err) {
+        console.error(err);
+        setError("Error loading profile");
+      }
+    };
 
-  const [formData, setFormData] = useState(user);
+    fetchUser();
+  }, [userId]);
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleUpdate = () => {
-    setUser(formData);
-    setEditMode(false);
+  const handleUpdate = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update profile");
+      }
+      const updatedUser = await response.json();
+      setUser(updatedUser);
+      setEditMode(false);
+    } catch (err) {
+      console.error(err);
+      setError("Update failed");
+    }
   };
 
   const handleCancel = () => {
     setFormData(user);
     setEditMode(false);
   };
+
+  // In case user data is not yet loaded
+  if (!user || !formData) {
+    return <div className="text-center py-10">Loading profile...</div>;
+  }
 
   const servicesProvided = [
     "Fixed kitchen light",
@@ -48,7 +80,8 @@ const UserProfile = () => {
       <main className="flex-grow max-w-5xl mx-auto p-6">
         <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">User Profile</h1>
 
-        {/* Profile Info */}
+        {error && <p className="text-red-500 text-center">{error}</p>}
+
         <div className="bg-white shadow-lg rounded-xl p-6 mb-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -137,7 +170,6 @@ const UserProfile = () => {
             </div>
           </div>
 
-          {/* Buttons */}
           <div className="mt-6 flex justify-center gap-4">
             {editMode ? (
               <>
@@ -165,7 +197,6 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* Services Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white shadow-md rounded-lg p-6">
             <h2 className="text-xl font-semibold mb-4 text-blue-600">Services Provided</h2>
